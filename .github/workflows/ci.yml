@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: pip install -e ".[dev]"
+      - run: ruff check . --select E,F,I --ignore E501
+      - run: pytest -q
+      - run: python scripts/medir.py
+
+  docker:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Constrói a imagem e testa a rota de saúde
+        run: |
+          docker build -t api-cdc:ci .
+          docker images api-cdc:ci --format "tamanho da imagem: {{.Size}}"
+          docker run -d --name api -p 8000:8000 api-cdc:ci
+          for i in $(seq 1 15); do curl -fs http://127.0.0.1:8000/saude && break || sleep 1; done
+          curl -fs "http://127.0.0.1:8000/buscar?q=desistir+de+compra+pela+internet&k=3"
+          docker rm -f api
