@@ -8,6 +8,8 @@ Rotas:
 A documentação interativa (OpenAPI) sai sozinha em /docs e o JSON em /openapi.json.
 """
 
+import re
+
 from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel, Field
 
@@ -18,6 +20,15 @@ DESCRICAO = (
     "Busca por palavra (BM25) nos artigos do Código de Defesa do Consumidor "
     "(Lei 8.078/1990). Sem chave de API, sem modelo, sem custo."
 )
+
+
+def normalizar_numero(numero: str) -> str:
+    """Aceita como o consumidor escreve ('art. 49', '49º', '54a', '54 - b') e devolve o formato do corpus ('49', '54-A')."""
+    limpo = re.sub(r"^\s*art(igo)?\.?\s*", "", numero.strip(), flags=re.IGNORECASE)
+    m = re.fullmatch(r"(\d+)\s*[ºo°.]?\s*-?\s*([a-zA-Z])?", limpo)
+    if not m:
+        return numero.strip()
+    return m.group(1) + (f"-{m.group(2).upper()}" if m.group(2) else "")
 
 
 class ArtigoOut(BaseModel):
@@ -66,7 +77,7 @@ def create_app(articles: list[Article] | None = None) -> FastAPI:
 
     @app.get("/artigos/{numero}", response_model=ArtigoOut, tags=["busca"])
     def artigo(numero: str) -> ArtigoOut:
-        a = por_numero.get(numero)
+        a = por_numero.get(normalizar_numero(numero))
         if a is None:
             raise HTTPException(status_code=404, detail=f"Artigo {numero} não encontrado")
         return ArtigoOut(artigo=a.artigo, titulo=f"Art. {a.artigo}", texto=a.texto)

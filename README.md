@@ -15,7 +15,7 @@ O [cdc-rag](https://github.com/arthurpenedo/cdc-rag) acha o artigo certo do CDC 
 | Rota | O que devolve |
 |---|---|
 | `GET /buscar?q=...&k=3` | os `k` artigos mais relevantes, com a nota BM25 (`k` de 1 a 20) |
-| `GET /artigos/{numero}` | o texto de um artigo (404 se não existir) |
+| `GET /artigos/{numero}` | o texto de um artigo (404 se não existir); aceita `49`, `art. 49`, `49º` e `54a` (= `54-A`) |
 | `GET /saude` | `{"status": "ok", "versao": ..., "artigos": N}` (usada pelo `HEALTHCHECK` do Docker) |
 | `GET /docs` · `GET /openapi.json` | documentação interativa e contrato OpenAPI, gerados do código |
 
