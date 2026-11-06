@@ -47,7 +47,7 @@ Medidos em 20/10/2026 com `python scripts/medir.py` (Windows, Python 3.13, FastA
 
 - **Tempo de resposta de `/buscar`:** mediana **4,1 ms**, p95 4,8 ms, máximo 5,7 ms (inclui roteamento, validação e JSON do FastAPI; **não** inclui rede).
 - **Qualidade da busca:** hit@3 de **56,9%**, igual ao BM25 do cdc-rag (a mesma implementação e as mesmas 58 perguntas). Há um teste que falha se cair abaixo de 50%.
-- **Tamanho da imagem Docker:** **não medido**. O Docker não estava disponível na máquina de desenvolvimento; o job `docker` do [`ci.yml`](.github/workflows/ci.yml) constrói a imagem, imprime o tamanho no log e testa `/saude` e `/buscar` dentro do contêiner. Quando rodar, atualizar este número.
+- **Tamanho da imagem Docker:** **136 MB**, lido no log do job `docker` do [`ci.yml`](.github/workflows/ci.yml) (`docker images`, execução de 02/11/2026). O mesmo job testa `/saude` e `/buscar` dentro do contêiner.
 - **Testes:** 9 testes (`pytest`), mais `ruff` no CI.
 
 ## Arquitetura
@@ -70,7 +70,6 @@ Decisões:
 - A busca é por palavra: não entende sinônimos ("nome sujo" não acha "cadastro de inadimplentes" sozinho). Por isso o hit@3 é 56,9%.
 - Sem autenticação, limite de requisições nem cache: é um serviço de demonstração.
 - Devolve o texto da lei, não aconselhamento jurídico.
-- Tamanho da imagem ainda não medido (ver acima).
 
 ## Licença
 
