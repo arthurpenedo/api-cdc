@@ -4,3 +4,5 @@ __pycache__/
 .venv/
 .rotina-msg
 .ruff_cache/
+
+.coverage
