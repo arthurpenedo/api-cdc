@@ -75,7 +75,7 @@ class BM25:
     def search(self, query: str, k: int = 5) -> list[Hit]:
         terms = tokenize(query)
         scores = []
-        for doc, length in zip(self.docs, self.lengths):
+        for doc, length in zip(self.docs, self.lengths, strict=True):
             s = 0.0
             for t in terms:
                 tf = doc.get(t, 0)
