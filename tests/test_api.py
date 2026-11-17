@@ -118,3 +118,10 @@ def test_bm25_acerta_pelo_menos_metade_das_perguntas_no_top3():
 def test_bm25_sem_artigos_ou_com_texto_vazio_nao_quebra():
     assert BM25([]).search("produto") == []
     assert BM25([Article("1", ""), Article("2", "")]).search("produto") == []
+
+
+@pytest.mark.parametrize("q", ["   ", "de a o", "o que é"])
+def test_buscar_so_com_espacos_ou_stopwords_devolve_lista_vazia(client, q):
+    r = client.get("/buscar", params={"q": q})
+    assert r.status_code == 200
+    assert r.json()["total"] == 0 and r.json()["resultados"] == []
