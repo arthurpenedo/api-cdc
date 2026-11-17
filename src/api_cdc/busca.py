@@ -67,7 +67,8 @@ class BM25:
         self.k1, self.b = k1, b
         self.docs = [Counter(tokenize(a.texto)) for a in articles]
         self.lengths = [sum(d.values()) for d in self.docs]
-        self.avg_len = sum(self.lengths) / len(self.lengths)
+        # sem artigos (ou só textos vazios) a média seria 0 e a normalização dividiria por zero
+        self.avg_len = (sum(self.lengths) / len(self.lengths)) if self.lengths and sum(self.lengths) else 1.0
         df = Counter(term for d in self.docs for term in d)
         n = len(self.docs)
         self.idf = {t: math.log(1 + (n - f + 0.5) / (f + 0.5)) for t, f in df.items()}

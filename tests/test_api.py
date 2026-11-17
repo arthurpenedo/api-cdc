@@ -113,3 +113,8 @@ def test_bm25_acerta_pelo_menos_metade_das_perguntas_no_top3():
         for p in perguntas
     )
     assert acertos / len(perguntas) >= 0.5
+
+
+def test_bm25_sem_artigos_ou_com_texto_vazio_nao_quebra():
+    assert BM25([]).search("produto") == []
+    assert BM25([Article("1", ""), Article("2", "")]).search("produto") == []
