@@ -54,6 +54,7 @@ def test_artigo_existente_e_inexistente(client):
 @pytest.mark.parametrize("escrito, esperado", [
     ("49", "49"), ("art. 49", "49"), ("Artigo 49", "49"), ("49º", "49"), ("54a", "54-A"),
     ("54 - b", "54-B"), ("104-C", "104-C"), ("abc", "abc"),
+    ("049", "49"), ("４９", "49"), ("54‑B", "54-B"), ("54–b", "54-B"),
 ])
 def test_normalizar_numero(escrito, esperado):
     assert normalizar_numero(escrito) == esperado

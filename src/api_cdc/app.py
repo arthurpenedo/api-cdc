@@ -9,6 +9,7 @@ A documentação interativa (OpenAPI) sai sozinha em /docs e o JSON em /openapi.
 """
 
 import re
+import unicodedata
 
 from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel, Field
@@ -24,11 +25,13 @@ DESCRICAO = (
 
 def normalizar_numero(numero: str) -> str:
     """Aceita como o consumidor escreve ('art. 49', '49º', '54a', '54 - b') e devolve o formato do corpus ('49', '54-A')."""
-    limpo = re.sub(r"^\s*art(igo)?\.?\s*", "", numero.strip(), flags=re.IGNORECASE)
+    # NFKC troca dígitos de largura total ('４９') e hífens copiados de PDF/Word ('54‑B', '54–B') pelo ASCII.
+    texto = re.sub(r"[‐-―−]", "-", unicodedata.normalize("NFKC", numero)).strip()
+    limpo = re.sub(r"^\s*art(igo)?\.?\s*", "", texto, flags=re.IGNORECASE)
     m = re.fullmatch(r"(\d+)\s*[ºo°.]?\s*-?\s*([a-zA-Z])?", limpo)
     if not m:
         return numero.strip()
-    return m.group(1) + (f"-{m.group(2).upper()}" if m.group(2) else "")
+    return (m.group(1).lstrip("0") or "0") + (f"-{m.group(2).upper()}" if m.group(2) else "")
 
 
 class ArtigoOut(BaseModel):
